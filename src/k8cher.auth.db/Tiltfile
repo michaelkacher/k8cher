@@ -1,0 +1,20 @@
+# This tiltfile sets up a postgres database, pg admin, and database migrations
+# allow for remote helm charts
+load('ext://helm_remote', 'helm_remote')
+
+# Add Bitnami helm charts for postgres, this is the artificact to deploy postgres on the cluster
+helm_remote('postgresql', release_name='k8cher-db', repo_name='bitnami', repo_url='https://charts.bitnami.com/bitnami', 
+set='postgresqlDatabase=k8cher,postgresqlUsername=postgres,postgresqlPassword=postgres')
+# port forward for local development access
+k8s_resource('k8cher-db-postgresql', port_forwards='5432:5432', labels=['database'])
+
+k8s_yaml('./kubernetes/k8cher-db-migrate.yaml')
+k8s_resource(
+    'k8cher-db-migrate', 
+    trigger_mode=TRIGGER_MODE_MANUAL, 
+    labels=['database'],
+    resource_deps=['k8cher-db-postgresql']
+    )
+
+k8s_yaml('./kubernetes/pg-admin.yaml')
+k8s_resource('pgadmin', port_forwards='5555:80', labels=['database'], resource_deps=['k8cher-db-postgresql'])

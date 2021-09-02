@@ -1,0 +1,13 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: k8cher-db-migrate
+spec:
+  template:
+    spec:
+      containers:
+      - name: k8cher-db-migrate
+        image: k8cher-db-migrate
+        command: ["dotnet-ef", "database", "update"]
+      restartPolicy: Never
+  backoffLimit: 1

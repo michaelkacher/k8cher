@@ -1,0 +1,78 @@
+# Credit: https://www.enterprisedb.com/blog/how-deploy-pgadmin-kubernetes
+apiVersion: v1
+kind: ConfigMap
+metadata:
+ name: pgadmin-config
+data:
+ servers.json: |
+   {
+       "Servers": {
+         "1": {
+           "Name": "PostgreSQL DB",
+           "Group": "Servers",
+           "Port": 5432,
+           "Username": "postgres",
+           "Host": "k8cher-db-postgresql",
+           "SSLMode": "prefer",
+           "MaintenanceDB": "postgres"
+         }
+       }
+   }
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+ name: pgadmin
+spec:
+ serviceName: pgadmin-service
+ podManagementPolicy: Parallel
+ replicas: 1
+ updateStrategy:
+   type: RollingUpdate
+ selector:
+   matchLabels:
+     app: pgadmin
+ template:
+   metadata:
+     labels:
+       app: pgadmin
+   spec:
+     terminationGracePeriodSeconds: 10
+     containers:
+       - name: pgadmin
+         image: dpage/pgadmin4:5.5
+         imagePullPolicy: Always
+         env:
+         - name: PGADMIN_DEFAULT_EMAIL
+           valueFrom:
+             secretKeyRef:
+               name: secret-store
+               key: pgadmin-emailuser
+         - name: PGADMIN_DEFAULT_PASSWORD
+           valueFrom:
+             secretKeyRef:
+               name: secret-store
+               key: pgadmin-password
+         ports:
+         - name: http
+           containerPort: 80
+           protocol: TCP
+         volumeMounts:
+         - name: pgadmin-config
+           mountPath: /pgadmin4/servers.json
+           subPath: servers.json
+           readOnly: true
+         - name: pgadmin-data
+           mountPath: /var/lib/pgadmin
+     volumes:
+     - name: pgadmin-config
+       configMap:
+         name: pgadmin-config
+ volumeClaimTemplates:
+ - metadata:
+     name: pgadmin-data
+   spec:
+     accessModes: [ "ReadWriteOnce" ]
+     resources:
+       requests:
+         storage: 3Gi

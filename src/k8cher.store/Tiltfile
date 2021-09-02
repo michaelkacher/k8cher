@@ -1,0 +1,43 @@
+# This tiltfile sets up a service that can store Svelte store data
+
+# For more on Extensions, see: https://docs.tilt.dev/extensions.html
+load('ext://restart_process', 'docker_build_with_restart')
+
+# watch source code and on change, rebuild artifacts (dlls, etc.) and place in builds folder
+local_resource(
+    'store-build',
+    'dotnet publish k8cher.store.csproj -c Release -o ../../builds/k8cher-store-build',
+    deps=['./'],
+    ignore=['k8cher.store.sln', 'k8cher.store.csproj.user', 'obj', 'bin', '.vs'],
+    trigger_mode=TRIGGER_MODE_AUTO,
+    labels=['store'],
+)
+
+# keeps a docker image named 'k8cher-store' updated
+docker_build_with_restart(
+    'k8cher-store',
+    '../../builds/k8cher-store-build',
+    entrypoint=['dotnet', 'k8cher.store.dll'],
+    dockerfile='DevelopmentDockerfile',
+    live_update=[
+        sync('../../builds/k8cher-store-build', '/app/out'),
+    ],
+)
+
+# deploys to kubernetes using the 'generic' service-chart
+yaml = helm(
+  '../../charts/service-chart',
+  # The release name, equivalent to helm --name
+  name='k8cher-store',
+  # The namespace to install in, equivalent to helm --namespace
+  namespace='default',
+  # The values file to substitute into the chart.
+  values=['./values.yaml']
+  )
+k8s_yaml(yaml)
+k8s_resource(
+    'k8cher-store-service-chart', 
+    links=['http://localhost/k8cher-store/swagger'],
+    labels=['store'],
+    resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
+    )

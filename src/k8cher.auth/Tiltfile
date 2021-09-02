@@ -1,0 +1,46 @@
+# This tiltfile sets up an auth service
+
+# For more on Extensions, see: https://docs.tilt.dev/extensions.html
+load('ext://restart_process', 'docker_build_with_restart')
+
+# watch source code and on change, rebuild artifacts (dlls, etc.) and place in builds folder
+local_resource(
+    'build',
+    'dotnet publish k8cher.auth.csproj -c Release -o ../../builds/k8cher-auth-build',
+    deps=['./'],
+    ignore=['k8cher.auth.sln', 'k8cher.auth.csproj.user', 'obj', 'bin', '.vs'],
+    trigger_mode=TRIGGER_MODE_AUTO,
+    labels=['auth'],
+)
+
+# keeps a docker image named 'k8cher-auth' updated
+docker_build_with_restart(
+    'k8cher-auth',
+    '../../builds/k8cher-auth-build',
+    entrypoint=['dotnet', 'k8cher.auth.dll'],
+    dockerfile='DevelopmentDockerfile',
+    live_update=[
+        sync('../../builds/k8cher-auth-build', '/app/out'),
+    ],
+)
+
+# deploys to kubernetes using the 'generic' service-chart
+yaml = helm(
+  '../../charts/service-chart',
+  # The release name, equivalent to helm --name
+  name='k8cher-auth',
+  # The namespace to install in, equivalent to helm --namespace
+  namespace='default',
+  # The values file to substitute into the chart.
+  values=['./values.yaml']
+  )
+k8s_yaml(yaml)
+k8s_resource(
+    'k8cher-auth-service-chart', 
+    links=['http://localhost/auth/swagger'],
+    labels=['auth'],
+    resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
+    )
+
+
+docker_build('k8cher-db-migrate', '../k8cher.auth', dockerfile='./MigrationDockerfile')

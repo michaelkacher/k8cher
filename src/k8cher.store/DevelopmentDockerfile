@@ -1,0 +1,4 @@
+FROM mcr.microsoft.com/dotnet/aspnet:6.0.0-preview.7
+COPY . /app/out
+WORKDIR /app/out
+ENTRYPOINT ["dotnet", "k8cher.store.dll"]
