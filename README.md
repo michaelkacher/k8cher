@@ -92,3 +92,5 @@ TODO - mbk: break out into differnt mini-tutorial files
 
 
 Reacreate migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
+
+# Attributions
