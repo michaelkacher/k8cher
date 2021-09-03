@@ -7,7 +7,7 @@ I always enjoy "developer experience" and this repository is being leveraged to 
 
 When you execute `tilt up` this project currently creates the following in a Kubernetes cluster:
 * [Proxy Service - .NET 6 preview 7 Minimal API](./src/k8cher.proxy/README.md)
-* Auth service .NET 6 preview 7
+* [Auth service .NET 6 preview 7](./src/k8cher.auth/README.md)
 * 'Store' service (expirmenting using Dapr actor to sync svelte frontend store)
 * Dapr for sidecars, plugin components, and secret management
 * PostgreSQL
@@ -40,6 +40,7 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 1) Clone repository `git clone https://github.com/michaelkacher/k8cher`
 2) cd into directory `cd k8cher`
 3) `tilt up` and press space bar to open the browser to watch the status of the services spinning up.
+* Note: To speed up 'hot reload' time code is being built on host machine. If this defeats the purpose of ease of use by requiring .NET framework being installed, etc. add an issue. 
 * Note: There is an intermittent first time bug I am chasing down that will only occur with the bitnami helm chart for postgres (has never occured with other helm charts). When browsing the Tilt Dashboard (the one accessed by pressing space bar) if there is an error in the Tiltfile, execute the following in the terminal: `helm repo add bitnami https://charts.bitnami.com/bitnami` and run again. 
 
 Once the services are all ready (green in the browser Tilt dashboard) it is ready to go! Explore and make changes to code--the services will automatically rebuild and deploy.
