@@ -26,7 +26,7 @@ function createActorStore(storeName) {
                 }
 
             } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
+                // todo - mbk: add to error service toast
             } finally {
                 update(state => (state = { ...state, isLoading: false }))
             }

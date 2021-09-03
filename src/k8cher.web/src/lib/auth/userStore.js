@@ -35,14 +35,11 @@ function createUserStore() {
         loadFromJwt: async (jwt, rememberMe) => {
             update(state => (state = { ...state, isLoading: true }));
             try {
-                // console.log('browser: ' + browser)
-                // if (browser) {
                 if (rememberMe) {
                     localStorage.setItem('jwt', jwt)
                 } else {
                     sessionStorage.setItem('jwt', jwt)
                 }
-                // }
 
                 const jsonJwt = parseJwt(jwt)
                 if (jsonJwt['UserRole']) {
@@ -58,28 +55,20 @@ function createUserStore() {
 
                 update(state => (state = { ...state, successfulLoad: true }));
             } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
+                // todo - mbk: add to error service toast
             } finally {
                 update(state => (state = { ...state, isLoading: false }));
             }
         },
         initialize: async () => {
-            console.log('start')
             update(state => (state = { ...state, isLoading: true }));
-            console.log('before try')
             try {
-                console.log('browser = ' + browser)
 
                 if (browser) {
-                    console.log('attempting session storage getzz')
                     let jwt = sessionStorage.getItem('jwt')
-                    console.log('jwt is: ' + jwt)
                     if (jwt == null) {
-                        console.log('attempting local storage get')
                         jwt = localStorage.getItem('jwt')
                     }
-                    console.log('continuing.......')
-                    console.log('!!!!!!!jwt is: ' + jwt)
                     if (jwt) {
 
                         const jsonJwt = parseJwt(jwt)
@@ -94,20 +83,16 @@ function createUserStore() {
                         }
 
                         update(state => (state = { ...state, jwt: jwt }));
-                        console.log('updating jwt complete')
                         // todo - mbk: previously only returned e-mail user with e-mail, determine next steps 
                         // const res = await get(`${serverUrl}auth/me`)
                         const json = { email: 'test@test.com' }
                         update(state => (state = { ...state, user: json }));
-                        console.log('updating user complete')
                         update(state => (state = { ...state, successfulLoad: true }));
                     }
                 }
             } catch (e) {
-                console.log("error: " + e)
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
+                // todo - mbk: add to error service toast
             } finally {
-                console.log('is loadding to false')
                 update(state => (state = { ...state, isLoading: false }));
             }
         },
@@ -126,7 +111,7 @@ function createUserStore() {
 
                 // todo - mbk: should a future post be added to add to invalidated list?
             } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
+                // todo - mbk: add to error service toast
             } finally {
                 update(state => (state = { ...state, isLoading: false }));
             }

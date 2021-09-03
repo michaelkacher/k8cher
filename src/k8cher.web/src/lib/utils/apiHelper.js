@@ -6,14 +6,10 @@ import { browser } from '$app/env'
 function browserGet(key) {
     if (browser) {
         let item = sessionStorage.getItem(key)
-        console.log('item = ' + item);
         if (item == null) {
-            console.log('entered local storage');
             item = localStorage.getItem(key)
         }
 
-        // todo - mbk: add a custom log that will log only for 'dev'
-        console.log('item retrieved: ' + item)
         if (item) {
             return item;
         }

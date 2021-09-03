@@ -1,7 +1,21 @@
 # K8cher
-An opinionated getting started project leveraging Kubernetes, Tilt, Dapr, and SvelteKit.
+An opinionated/experimental getting started project leveraging Kubernetes, Tilt, Dapr, and SvelteKit. This is a work in progress!
+
+Skip to the [link](#quick-start)!
 
 I always enjoy "developer experience" and this repository is being leveraged to experiment with different technologies and streamling workflows. I hope to learn valuable lessons and share with others what I am doing. 
+
+When you execute `tilt up` this project currently creates the following in a Kubernetes cluster:
+* [Proxy Service - .NET 6 preview 7 Minimal API](./src/k8cher.proxy/README.md)
+* Auth service .NET 6 preview 7
+* 'Store' service (expirmenting using Dapr actor to sync svelte frontend store)
+* Dapr for sidecars, plugin components, and secret management
+* PostgreSQL
+* pgAdmin
+* Database migration with Kubernetes Job
+* Local Kubernetes secret store (intended to leverage Dapr secret component for a Key vault in production)
+
+There is a svelteKit frontend that can currently be run seperate `npm run dev`
 
 # Goals
 This starter kit leverages [Tilt](https://tilt.dev/) to provide a productive environment for development which includes:
@@ -19,28 +33,45 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 * [Docker Desktop with Kubernetes enabled](https://docs.docker.com/desktop/)
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
-* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe.
+* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe. [If tools are not accessible on command line follow these steps.](./docs/setup-path.md)
 
-In Windows, if you have trouble installing and executing the command line tools (kubectl, helm, tilt), here is what I prefer:
-* download each executable and place them in C:\tools
-* ensure the folder C:\tools is in path
-    1) press windows key and type 'env'
-    2) select "Edit the system environment variables"
-    3) click the "Environment Variables.." button at the bottom
-    4) select the row that has the value 'Path' in the 'Variable' column and click 'Edit..'
-    5) click 'New' and type in 'C:\tools'
-    6) click 'Ok' on all the opened windows
-    7) close all terminal/command windows
-    8) test by opening a new terminal/command windows and execute `tilt` and confirm you see the help command
 
 # Quick Start
 1) Clone repository `git clone https://github.com/michaelkacher/k8cher`
 2) cd into directory `cd k8cher`
 3) `tilt up` and press space bar to open the browser to watch the status of the services spinning up.
-* Note: There is an intermittent first time bug I am chasing down that will only occur with the bitnami helm chart for postgres (has never occured with other helm charts). When browsing the Tilt Dashboard (the one accessed by pressing space bar) if there is an error in the Tiltfile, execute the following in the terminal: `helm repo add bitnami https://charts.bitnami.com/bitnami`. 
+* Note: There is an intermittent first time bug I am chasing down that will only occur with the bitnami helm chart for postgres (has never occured with other helm charts). When browsing the Tilt Dashboard (the one accessed by pressing space bar) if there is an error in the Tiltfile, execute the following in the terminal: `helm repo add bitnami https://charts.bitnami.com/bitnami` and run again. 
+
+Once the services are all ready (green in the browser Tilt dashboard) it is ready to go! Explore and make changes to code--the services will automatically rebuild and deploy.
+
+The proxy is currently setup to localhost:80. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 80 to desired port.
+
+## Some items to explose
+Visit the swagger: http://localhost/auth/swagger
 
 
-Once the services are all ready (green in the browser Tilt dashboard) it is ready to go!
+Register a user: POST localhost/auth/register
+```
+{
+  "user": {
+    "userName": "michael.kacher@gmail.com",
+    "email": "michael.kacher@gmail.com"
+  },
+  "password": "Passw0rd_"
+}
+```
+
+Get a JWT: POST localhost/auth/login
+{
+  "email": "michael.kacher@gmail.com",
+  "password": "Passw0rd_"
+}
+
+View PG Admin at localhost:5555 and login
+* Email Address / Username: `user@domain.com`
+* Password: `bouncingcow` (set in TiltFile for local development)
+Then select the database and enter password `postgres`. Now you can explore the schema and run queries against all the data.
+
 
 ## What does tilt up execute?
 [Tilt](https://tilt.dev/) is a developer productivity tool that integrates with Kubernetes and provides live updates.
@@ -57,13 +88,5 @@ TODO - mbk: break out into differnt mini-tutorial files
 
 # Database 
 
-## Accessing PG Admin
-* http://localhost:5555/
-* Currently hardcoded:
-* Email Address / Username: `user@domain.com`
-* Password: `bouncingcow` (set in TiltFile for local development)
-
-Adding migration to authorization database.
-* change ./auth-proxy/
 
 Reacreate migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
