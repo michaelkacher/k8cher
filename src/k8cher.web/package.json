@@ -1,5 +1,5 @@
 {
-  "name": "K8cher.web",
+  "name": "k8cher.web",
   "version": "0.0.1",
   "scripts": {
     "dev": "svelte-kit dev",

@@ -19,7 +19,19 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 * [Docker Desktop with Kubernetes enabled](https://docs.docker.com/desktop/)
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
-* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe and ensure the folder you place it is in in the Windows Environment Variables Path variable.
+* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe.
+
+In Windows, if you have trouble installing and executing the command line tools (kubectl, helm, tilt), here is what I prefer:
+* download each executable and place them in C:\tools
+* ensure the folder C:\tools is in path
+    1) press windows key and type 'env'
+    2) select "Edit the system environment variables"
+    3) click the "Environment Variables.." button at the bottom
+    4) select the row that has the value 'Path' in the 'Variable' column and click 'Edit..'
+    5) click 'New' and type in 'C:\tools'
+    6) click 'Ok' on all the opened windows
+    7) close all terminal/command windows
+    8) test by opening a new terminal/command windows and execute `tilt` and confirm you see the help command
 
 # Quick Start
 1) Clone repository `git clone https://github.com/michaelkacher/k8cher`
