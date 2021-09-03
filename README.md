@@ -1,7 +1,7 @@
 # K8cher
 An opinionated/experimental getting started project leveraging Kubernetes, Tilt, Dapr, and SvelteKit. This is a work in progress!
 
-Skip to the [link](#quick-start)!
+Skip to the [Quick Start](#quick-start)!
 
 I always enjoy "developer experience" and this repository is being leveraged to experiment with different technologies and streamling workflows. I hope to learn valuable lessons and share with others what I am doing. 
 
@@ -46,7 +46,7 @@ Once the services are all ready (green in the browser Tilt dashboard) it is read
 
 The proxy is currently setup to localhost:80. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 80 to desired port.
 
-## Some items to explose
+## Some items to explore
 Visit the swagger: http://localhost/auth/swagger
 
 
@@ -62,10 +62,12 @@ Register a user: POST localhost/auth/register
 ```
 
 Get a JWT: POST localhost/auth/login
+```
 {
   "email": "michael.kacher@gmail.com",
   "password": "Passw0rd_"
 }
+```
 
 View PG Admin at localhost:5555 and login
 * Email Address / Username: `user@domain.com`
