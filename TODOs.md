@@ -1,11 +1,17 @@
+* showed host in dapr logs for plugin as /tmp, investigate other
+* log 3600 vs 3500?
+* app id in old is app_id=auth-proxy 
+
+
+* slim down cors (have it wide open now)
+* add actor store
 * add in sveltekit
-* add cors to proxy
 * With minimal APIs can I flip it where it always requires authorization unless removed? Right now add .RequireAuthorization() at the end.
 * todo - mbk: add an 'addDapr' flag to helm deployment.yaml that only adds when true
 
 * Consider adding issue to Dapr asking for advice where a container restarts and the side car is not injected due to: TLS handshake error from remote error: tls: bad certificate. This only happens if DevelopmentDockerfile or helm chart is changed.
 To fix, have to restart dapr side car injector pod then restart container pod.
-Similar issue mentioned here https://github.com/dapr/dapr/issues/1621, but closed due to workaround. Maybe there is a way in tilt to auto restart for now?
+Similar issue mentioned here https://github.com/dapr/dapr/issues/1621, but closed due to workaround. Maybe there is a way in tilt to auto restart for now? Maybe similar, but when actors added, have to tilt down, tilt up. Dapr environment just not very hot reloadable friendly?
 
 * links on minimal API to check against how I setup
     * has auth helper - https://dev.to/425show/secure-and-minimal-apis-using-net-6-c-10-and-azure-active-directory-197i
@@ -20,7 +26,7 @@ Similar issue mentioned here https://github.com/dapr/dapr/issues/1621, but close
 * add health checks
 * Tests (tie into tilt buttons, also integration tests)
 * implement e-mail for dev environment. This repo used image named maildev: https://github.com/EdwinVW/dapr-traffic-control/blob/master/src/k8s/maildev.yaml
-
+* add swagger for store service
 * Get full login working - Experiment with login flow (brainstorm nice flow)
     * Can potentially have user work and then create account only to store data
     * Potentially not call register until e-mail confirmed link,

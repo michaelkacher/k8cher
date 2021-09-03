@@ -116,3 +116,10 @@ builds/*
 #Note: Tilt documentation said to not ignore the modules folder
 tilt_modules
 src/k8cher.auth/Properties/launchSettings.json
+
+
+src/k8cher.web/.DS_Store
+src/k8cher.web/node_modules
+src/k8cher.web/build
+src/k8cher.web/.svelte-kit
+src/k8cher.web/package

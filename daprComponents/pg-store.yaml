@@ -1,0 +1,20 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pgstatestore
+  namespace: default
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString
+  # todo - mbk: right now hijacking the auth database so only one used in development
+  # switch to secret, then it will be cleaner to set for two seperate when prod
+  # This also requires connection string in different format. Hmmm.
+    value: "host=k8cher-db-postgresql port=5432 database=k8cher user=postgres password=postgres"
+  - name: actorStateStore
+    value: "true"
+#  - name: connectionString
+#    secretKeyRef:
+#      name: secret-store
+#      key: pg-connection-string

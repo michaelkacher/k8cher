@@ -1,6 +1,9 @@
 # allow for remote helm charts
 load('ext://helm_remote', 'helm_remote')
 
+# don't hide secrets for development only environment
+secret_settings ( disable_scrub=True ) 
+
 # Create a local kubernetes secret store. This is only for local development and not secure!!!
 # For production implement a a dapr secret store component (https://docs.dapr.io/reference/components-reference/supported-secret-stores/)
 # such as HashiCorp Vault, Azure Key Vault, GPC Secret Manager, or AWS Secret Manager
@@ -8,8 +11,8 @@ k8s_yaml(local(
     ["kubectl", "create", "secret", "generic", "secret-store", 
     "--from-literal=pgadmin-password=bouncingcow",
     "--from-literal=pgadmin-emailuser=user@domain.com",
-    "--from-literal=pg-host=auth-db-postgresql",
-    "--from-literal=pg-connection-string=Host=auth-db-postgresql;Port=5432;Database=authdb;Username=postgres;Password=postgres;",
+    "--from-literal=pg-host=k8cher-db-postgresql",
+    "--from-literal=pg-connection-string=Host=k8cher-db-postgresql;Port=5432;Database=k8cher;Username=postgres;Password=postgres;",
     "--from-literal=password=Y4nys7f11",
     "--from-literal=signing-key=NO5U308H!@#SI2ZXCVSDSDNDln",
     "--from-literal=jwt-issuer=http://localhost",
@@ -36,3 +39,6 @@ k8s_resource('dapr-operator', labels=['dapr'])
 k8s_resource('dapr-sentry', labels=['dapr'])
 k8s_resource('dapr-placement-server', labels=['dapr'])
 k8s_resource('dapr-sidecar-injector', labels=['dapr'])
+
+# Dapr Components
+k8s_yaml('./daprComponents/pg-store.yaml')

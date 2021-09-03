@@ -44,9 +44,9 @@ builder.Services.AddAuthorization();
 
 
 var app = builder.Build();
-app.MapActorsHandlers();
 app.UseAuthentication();
 app.UseAuthorization();
+app.MapActorsHandlers();
 
 
 app.MapGet("store/hello", async (ClaimsPrincipal user) => {
