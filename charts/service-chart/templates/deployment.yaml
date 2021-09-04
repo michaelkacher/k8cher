@@ -38,10 +38,12 @@ spec:
             - name: proxy
               containerPort: 80
               protocol: TCP
-          # todo - mbk: add an 'addDapr' flag that only adds when true    
+          # todo - mbk: add an 'addDapr' flag that only adds when true   
+          {{- if .Values.dapr.enabled }}
             - name: dapr-sidecar
               containerPort: 3600
               protocol: TCP
+          {{- end }}
           env:
           - name: ASPNETCORE_URLS
             value: http://*:80;http://*:3600

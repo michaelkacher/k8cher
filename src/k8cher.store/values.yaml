@@ -31,6 +31,9 @@ podAnnotations:
    dapr.io/log-level: "debug" # todo - mbk: add a prod.values that does not have this set
    dapr.io/sidecar-liveness-probe-delay-seconds: "45"
 
+dapr:
+  enabled: true
+
 podSecurityContext: {}
   # fsGroup: 2000
 

@@ -31,6 +31,9 @@ serviceAccount:
 #    dapr.io/log-level: "debug"
 #    dapr.io/sidecar-liveness-probe-delay-seconds: "45"
 
+dapr:
+  enabled: true
+
 podSecurityContext: {}
   # fsGroup: 2000
 
