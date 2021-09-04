@@ -1,0 +1,17 @@
+# setup maildev server
+
+yaml = helm(
+  '../../charts/service-chart',
+  name='maildev',
+  # The namespace to install in, equivalent to helm --namespace
+  namespace='default',
+  # The values file to substitute into the chart.
+  values=['./values.yaml']
+  )
+k8s_yaml(yaml)
+
+k8s_resource(
+    'maildev-service-chart',
+    port_forwards=[port_forward(1080, 80, name='maildev')],
+    labels=['mail']
+    )

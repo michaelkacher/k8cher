@@ -32,6 +32,10 @@ include('./src/k8cher.auth.db/Tiltfile')
 # Service to sync Svelte Store database
 include('./src/k8cher.store/Tiltfile')
 
+# maildev development mail server
+include('./src/maildev/Tiltfile')
+
+
 # Dapr
 helm_remote('dapr', release_name='dapr', repo_name='dapr', repo_url='https://dapr.github.io/helm-charts/')
 k8s_resource('dapr-dashboard', port_forwards=[port_forward(8080, 8080, name='dapr dashboard')], labels=['dapr'])
