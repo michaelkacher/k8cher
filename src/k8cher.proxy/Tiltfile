@@ -37,7 +37,6 @@ yaml = helm(
 k8s_yaml(yaml)
 k8s_resource(
     'k8cher-proxy-service-chart', 
-    links=['http://localhost/k8cher-proxy/swagger'],
     labels=['proxy'],
     resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
     )

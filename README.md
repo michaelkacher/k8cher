@@ -34,62 +34,61 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
 * [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe. [If tools are not accessible on command line follow these steps.](./docs/setup-path.md)
+* [.NET 6 Preview 7](https://dotnet.microsoft.com/download/dotnet/6.0) This dependency can be removed if the source is built in the docker containers. The speed of rebuilding and deploying was decreased slightly by having the code is built on host machine. If this defeats the purpose of ease of use by requiring .NET installed, add an issue.
 
 
 # Quick Start
-1) Clone repository `git clone https://github.com/michaelkacher/k8cher`
-2) cd into directory `cd k8cher`
-3) `tilt up` and press space bar to open the browser to watch the status of the services spinning up.
-* Note: To speed up 'hot reload' time code is being built on host machine. If this defeats the purpose of ease of use by requiring .NET framework being installed, etc. add an issue. 
+1) Ensure the 
+2) Clone repository `git clone https://github.com/michaelkacher/k8cher`
+3) cd into directory `cd k8cher`
+4) `tilt up` and press space bar to open the browser to watch the status of the services spinning up.
+ 
 * Note: There is an intermittent first time bug I am chasing down that will only occur with the bitnami helm chart for postgres (has never occured with other helm charts). When browsing the Tilt Dashboard (the one accessed by pressing space bar) if there is an error in the Tiltfile, execute the following in the terminal: `helm repo add bitnami https://charts.bitnami.com/bitnami` and run again. 
 
-Once the services are all ready (green in the browser Tilt dashboard) it is ready to go! Explore and make changes to code--the services will automatically rebuild and deploy.
+ 
+![Image of Tilt Dashboard](/docs/images/tilt-getting-started.png "Tilt Dashboard")
+1) The dashboard shows the health of the services, if it shows 16/16 you are ready to go! This displays real time updates as changes to services are saved and it is rebuilt and deployed.
+2) View the Swagger for the auth service by clicking the link in the 'Endpoints' column. The base path and port is that of the proxy, and all paths matching '/auth' are redirected to the auth service. A user can be registered through the swagger:
+    * Click on the row that reads `Post /auth/register`
+    * Click the "Try it out button"
+    * Paste in the JSON below
+        ```
+        {
+        "user": {
+            "userName": "michael.kacher@gmail.com",
+            "email": "michael.kacher@gmail.com"
+        },
+        "password": "Passw0rd_"
+        }
+        ```
+
+    * Click execute, you should see a 200 response
+    * A JWT for the user can be retrieved with a POST to /auth/login with the following JSON. (This only works because E-mail/Text confirmation has been disabled. This would not work for production where this will fail until confirmation)
+        ```
+        {
+        "email": "michael.kacher@gmail.com",
+        "password": "Passw0rd_"
+        }
+        ```
+3) View Resources can be selected to view the logs of all the services. You should see that creation of the user and login is logged.
+4) Select the link for pgAdmin `localhost:5555`. NOTE: These secrets are set in the local Kubernetes secret store. The intention is that if deployed to production the Dapr Secret Management plugin is leveraged to integrate with AWS/Azure/GCP secret store.
+    * At the login screen use the following credentials 
+        - Email Address / Username: `user@domain.com`
+        - Password: `bouncingcow`
+    * This brings you to the admin page, expand the database in the left hand browser and use `postgres` for the password
+    * In the Browser panel expand `k8cher` database and expand Schema->public->Tables. You can right click and query the `AspNetUsers` table and confirm the users is there.
+    ![pgAdmin Tool](/docs/images/pgadmin-query.png "pgAdmin Tool")
+
+To cleanup the kubernetes resources do the following:
+1) in the terminical window running tilt, press `ctrl + c` to stop the serfice
+2) execute `tilt down`
 
 The proxy is currently setup to localhost:80. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 80 to desired port.
 
-## Some items to explore
-Visit the swagger: http://localhost/auth/swagger
 
 
-Register a user: POST localhost/auth/register
-```
-{
-  "user": {
-    "userName": "michael.kacher@gmail.com",
-    "email": "michael.kacher@gmail.com"
-  },
-  "password": "Passw0rd_"
-}
-```
-
-Get a JWT: POST localhost/auth/login
-```
-{
-  "email": "michael.kacher@gmail.com",
-  "password": "Passw0rd_"
-}
-```
-
-View PG Admin at localhost:5555 and login
-* Email Address / Username: `user@domain.com`
-* Password: `bouncingcow` (set in TiltFile for local development)
-Then select the database and enter password `postgres`. Now you can explore the schema and run queries against all the data.
-
-
-## What does tilt up execute?
-[Tilt](https://tilt.dev/) is a developer productivity tool that integrates with Kubernetes and provides live updates.
-
-Some items to try:
-TODO - mbk: break out into differnt mini-tutorial files
-* open swagger
-* curl to register user
-* curl to login and get jwt
-* open database admin
-* explorse users
-* viewing logs
-
-
-# Database 
+## TODO - mbk: break out into differnt mini-tutorial files
+# # Database 
 
 
 Reacreate migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
