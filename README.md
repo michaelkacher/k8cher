@@ -33,9 +33,8 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 * [Docker Desktop with Kubernetes enabled](https://docs.docker.com/desktop/)
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
-* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to the release download page. On Windows be sure to rename to tilt.exe. [If tools are not accessible on command line follow these steps.](./docs/setup-path.md)
+* [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to tilt.exe. [If tools are not accessible on command line follow these steps.](./docs/setup-path.md)
 * [.NET 6 Preview 7](https://dotnet.microsoft.com/download/dotnet/6.0) This dependency can be removed if the source is built in the docker containers. The speed of rebuilding and deploying was decreased slightly by having the code is built on host machine. If this defeats the purpose of ease of use by requiring .NET installed, add an issue.
-
 
 # Quick Start
 1) Ensure the 
