@@ -3,12 +3,12 @@ An opinionated/experimental getting started project leveraging Kubernetes, Tilt,
 
 Skip to the [Quick Start](#quick-start)!
 
-I always enjoy "developer experience" and this repository is being leveraged to experiment with different technologies and streamling workflows. I hope to learn valuable lessons and share with others what I am doing. 
+I always enjoy "developer experience" and this repository is being leveraged to experiment with different technologies and streamlining  workflows. I hope to learn valuable lessons and share with others what I am doing. 
 
 When you execute `tilt up` this project currently creates the following in a Kubernetes cluster:
 * [Proxy Service - .NET 6 preview 7 Minimal API](./src/k8cher.proxy/README.md)
 * [Auth service .NET 6 preview 7](./src/k8cher.auth/README.md)
-* 'Store' service (expirmenting using Dapr actor to sync svelte frontend store)
+* 'Store' service (experimenting using Dapr actor to sync svelte frontend store)
 * Dapr for sidecars, plugin components, and secret management
 * PostgreSQL
 * pgAdmin
@@ -29,7 +29,7 @@ This starter kit leverages [Tilt](https://tilt.dev/) to provide a productive env
 
 Get started fast! The tools are preconfigured and kubectl, helm, and other tools can be learned over time.
 
-# Prerequisits
+# Prerequisites
 * [Docker Desktop with Kubernetes enabled](https://docs.docker.com/desktop/)
 * [Kubectl](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
@@ -80,7 +80,7 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
     ![pgAdmin Tool](/docs/images/pgadmin-query.png "pgAdmin Tool")
 
 To cleanup the kubernetes resources do the following:
-1) in the terminical window running tilt, press `ctrl + c` to stop the serfice
+1) in the terminal  window running tilt, press `ctrl + c` to stop the service
 2) execute `tilt down`
 
 
@@ -89,11 +89,11 @@ To cleanup the kubernetes resources do the following:
 * The proxy is currently setup to localhost:8088. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 8088 to desired port.
 
 
-## TODO - mbk: break out into differnt mini-tutorial files
+## TODO - mbk: break out into different  mini-tutorial files
 # # Database 
 
 
-Reacreate migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
+Recreate  migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
 
 
 
