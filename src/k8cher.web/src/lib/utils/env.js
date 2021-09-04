@@ -1,4 +1,4 @@
-export const serverUrl = 'http://localhost/'
+export const serverUrl = 'http://localhost:8088/'
 // todo - mbk: replace with sveltekit environmnt variable?
 // add .env file
 // add variables prefixed with VITE_

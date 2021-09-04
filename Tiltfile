@@ -15,8 +15,8 @@ k8s_yaml(local(
     "--from-literal=pg-connection-string=Host=k8cher-db-postgresql;Port=5432;Database=k8cher;Username=postgres;Password=postgres;",
     "--from-literal=password=Y4nys7f11",
     "--from-literal=signing-key=NO5U308H!@#SI2ZXCVSDSDNDln",
-    "--from-literal=jwt-issuer=http://localhost",
-    "--from-literal=jwt-audience=http://localhost",
+    "--from-literal=jwt-issuer=http://localhost:8088",
+    "--from-literal=jwt-audience=http://localhost:8088",
     "-o=yaml", "--dry-run=client"]
     ))
 
@@ -34,7 +34,7 @@ include('./src/k8cher.store/Tiltfile')
 
 # Dapr
 helm_remote('dapr', release_name='dapr', repo_name='dapr', repo_url='https://dapr.github.io/helm-charts/')
-k8s_resource('dapr-dashboard', port_forwards='8080:8080', labels=['dapr'])
+k8s_resource('dapr-dashboard', port_forwards=[port_forward(8080, 8080, name='dapr dashboard')], labels=['dapr'])
 k8s_resource('dapr-operator', labels=['dapr'])
 k8s_resource('dapr-sentry', labels=['dapr'])
 k8s_resource('dapr-placement-server', labels=['dapr'])

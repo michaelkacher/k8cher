@@ -17,4 +17,9 @@ k8s_resource(
     )
 
 k8s_yaml('./kubernetes/pg-admin.yaml')
-k8s_resource('pgadmin', port_forwards='5555:80', labels=['database'], resource_deps=['k8cher-db-postgresql'])
+k8s_resource(
+    'pgadmin', 
+    port_forwards=[port_forward(5555, 80, name='pg admin dashboard')],
+    labels=['database'], 
+    resource_deps=['k8cher-db-postgresql']
+    )

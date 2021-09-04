@@ -37,7 +37,7 @@ yaml = helm(
 k8s_yaml(yaml)
 k8s_resource(
     'k8cher-auth-service-chart', 
-    links=['http://localhost/auth/swagger'],
+    links=[link('http://localhost:8088/auth/swagger', 'auth swagger')],
     labels=['auth'],
     resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
     )

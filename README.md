@@ -83,8 +83,10 @@ To cleanup the kubernetes resources do the following:
 1) in the terminical window running tilt, press `ctrl + c` to stop the serfice
 2) execute `tilt down`
 
-The proxy is currently setup to localhost:80. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 80 to desired port.
 
+
+# Notes
+* The proxy is currently setup to localhost:8088. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 8088 to desired port.
 
 
 ## TODO - mbk: break out into differnt mini-tutorial files
@@ -92,5 +94,8 @@ The proxy is currently setup to localhost:80. If this conflicts with existing po
 
 
 Reacreate migrations - delete Migrations folder content $`dotnet ef migrations add InitialCreate -- --environment Migration`.
+
+
+
 
 # Attributions

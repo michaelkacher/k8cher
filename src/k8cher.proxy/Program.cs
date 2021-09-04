@@ -12,4 +12,8 @@ app.UseCors(p =>
     p.AllowAnyHeader();
 });
 
+app.MapGet("healthz", async () => {
+    return Results.Ok("Healthy");
+});
+
 app.Run();

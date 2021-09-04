@@ -34,19 +34,3 @@ https://www.cypress.io/
 jest has jest.conf.cjs
 
 * In app.html add manifest.json like hipster?
-
-* In svelte.config.js look at adding proxy
-vite: () => ({
-			server: {
-				proxy: {
-					'/api': {
-						target: 'http://localhost:8080',
-						changeOrigin: true,
-					},
-					'/management': {
-						target: 'http://localhost:8080',
-						changeOrigin: true,
-					},
-				},
-			},
-		}),
