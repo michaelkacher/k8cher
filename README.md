@@ -31,16 +31,16 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
 
 # Prerequisites
 * [Docker Desktop with Kubernetes enabled](https://docs.docker.com/desktop/)
-* [Kubectl](https://kubernetes.io/docs/tasks/tools/)
+* Kubectl is installed with Docker Desktop, confirm by typing `kubectl` in the terminal. If you don't have it, [Install it](https://kubernetes.io/docs/tasks/tools/)
 * [Helm CLI](https://helm.sh/docs/intro/install/)
 * [Tilt](https://github.com/tilt-dev/tilt/releases) - This is the link to tilt.exe. [If tools are not accessible on command line follow these steps.](./docs/setup-path.md)
 * [.NET 6 Preview 7](https://dotnet.microsoft.com/download/dotnet/6.0) This dependency can be removed if the source is built in the docker containers. The speed of rebuilding and deploying was decreased slightly by having the code is built on host machine. If this defeats the purpose of ease of use by requiring .NET installed, add an issue.
 
 # Quick Start
-1) Ensure the 
+1) Ensure the [Prerequisites are installed](#prerequisites)
 2) Clone repository `git clone https://github.com/michaelkacher/k8cher`
 3) cd into directory `cd k8cher`
-4) `tilt up` and press space bar to open the browser to watch the status of the services spinning up.
+4) `tilt up`. You will see a message in the terminal that you can press space bar to open the Tilt Dashboard. Open it and watch the status of the services starting.
  
 * Note: There is an intermittent first time bug I am chasing down that will only occur with the bitnami helm chart for postgres (has never occured with other helm charts). When browsing the Tilt Dashboard (the one accessed by pressing space bar) if there is an error in the Tiltfile, execute the following in the terminal: `helm repo add bitnami https://charts.bitnami.com/bitnami` and run again. 
 
