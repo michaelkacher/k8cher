@@ -1,4 +1,9 @@
+using Dapr.Client;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
+builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
 
 var connectionString = builder.Configuration.GetValue<string>("pg-connection-string");
 
@@ -42,68 +47,66 @@ app.MapPost("/auth/register", async (RegisterRequest registerRequest, UserManage
     return Results.BadRequest("Invalid request");
 });
 
-// todos to get working:
-// enable dapr in values.yaml
-// setup dapr register
-// inject client
-// add smtp dapr component
-app.MapPost("/auth/createaccount", async (CreateAccountRequest createAccountRequest, UserManager<User> userManager) =>
-{
 
-    // todo - mbk: determine what this method does if no user? null? exception?
+app.MapPost("/auth/createaccount", async (CreateAccountRequest createAccountRequest, UserManager<User> userManager, DaprClient daprClient) =>
+{
+    Console.WriteLine($"Create accounted invoked for e-mail: {createAccountRequest.Email}");
     var user = await userManager.FindByEmailAsync(createAccountRequest.Email);
 
-    if (user != null) 
+    if (user != null)
     {
-        if (user.EmailConfirmed) 
+        Console.WriteLine($"Account exists for e-mail: {createAccountRequest.Email}");
+        if (user.EmailConfirmed)
         {
             // todo - mbk: send e-mail that a request was made to register account
         }
-        else 
+        else
         {
-            // use SecurityStamp?
             // up attempt account
             // send e-mail with verify link
         }
 
-         
+
         return Results.Ok();
     }
+
+    Console.WriteLine($"Creating new account for e-mail: {createAccountRequest.Email}");
 
     user = new User() { UserName = createAccountRequest.Email };
     var result = await userManager.CreateAsync(user);
 
     if (result.Succeeded)
     {
+        Console.WriteLine($"Success creating new account for e-mail: {createAccountRequest.Email}");
     }
     else
     {
+        Console.WriteLine($"Error creating new account for e-mail: {createAccountRequest.Email}");
         // todo - mbk: what do do here?
     }
-
-    // user.SecurityStamp
-
+    
     // send e-mail
     var url = "http://localhost:8088/auth/validate";
     var body = $@"Click here to <a href=""{url}/{user.SecurityStamp}"">complete account registration</a>";
+    var appName = "k8cher";
 
-var metadata = new Dictionary<string, string>
-            {
-                ["emailFrom"] = "noreply@cfca.gov",
-                ["emailTo"] = vehicleInfo.OwnerEmail,
-                ["subject"] = $"Speeding violation on the {speedingViolation.RoadId}"
-            };
-            await daprClient.InvokeBindingAsync("sendmail", "create", body, metadata);
+    var metadata = new Dictionary<string, string>
+    {
+        ["emailFrom"] = "donotreply@domain.com",
+        ["emailTo"] = createAccountRequest.Email,
+        ["subject"] = $"Finish creating your {appName} account"
+    };
+    
+    try 
+    {
+        await daprClient.InvokeBindingAsync("sendmail", "create", body, metadata);
+    }
+    catch(Exception ex) {
+        Console.WriteLine($"Error sending e-mail: {ex.Message}");
+        return Results.BadRequest("Error sending e-mail");
+    }
 
-    // if (result.Succeeded)
-    // {
-    //     Console.WriteLine($"New user created: {registerRequest.User}");
-    //     return Results.Ok();
-    // }
-
-    // Console.WriteLine($"Failed to create user: {registerRequest.User}");
-
-    return Results.BadRequest("Invalid request");
+    return Results.Ok();
 });
 
 
