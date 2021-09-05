@@ -4,6 +4,11 @@
     public string Password { get; set; } = String.Empty;
 }
 
+public class CreateAccountRequest
+{
+    public string Email { get; set; } = String.Empty;
+}
+
 public class LoginRequest
 {
     public string Email { get; set; } = String.Empty;

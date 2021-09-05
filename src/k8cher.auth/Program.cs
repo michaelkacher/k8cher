@@ -42,6 +42,70 @@ app.MapPost("/auth/register", async (RegisterRequest registerRequest, UserManage
     return Results.BadRequest("Invalid request");
 });
 
+// todos to get working:
+// enable dapr in values.yaml
+// setup dapr register
+// inject client
+// add smtp dapr component
+app.MapPost("/auth/createaccount", async (CreateAccountRequest createAccountRequest, UserManager<User> userManager) =>
+{
+
+    // todo - mbk: determine what this method does if no user? null? exception?
+    var user = await userManager.FindByEmailAsync(createAccountRequest.Email);
+
+    if (user != null) 
+    {
+        if (user.EmailConfirmed) 
+        {
+            // todo - mbk: send e-mail that a request was made to register account
+        }
+        else 
+        {
+            // use SecurityStamp?
+            // up attempt account
+            // send e-mail with verify link
+        }
+
+         
+        return Results.Ok();
+    }
+
+    user = new User() { UserName = createAccountRequest.Email };
+    var result = await userManager.CreateAsync(user);
+
+    if (result.Succeeded)
+    {
+    }
+    else
+    {
+        // todo - mbk: what do do here?
+    }
+
+    // user.SecurityStamp
+
+    // send e-mail
+    var url = "http://localhost:8088/auth/validate";
+    var body = $@"Click here to <a href=""{url}/{user.SecurityStamp}"">complete account registration</a>";
+
+var metadata = new Dictionary<string, string>
+            {
+                ["emailFrom"] = "noreply@cfca.gov",
+                ["emailTo"] = vehicleInfo.OwnerEmail,
+                ["subject"] = $"Speeding violation on the {speedingViolation.RoadId}"
+            };
+            await daprClient.InvokeBindingAsync("sendmail", "create", body, metadata);
+
+    // if (result.Succeeded)
+    // {
+    //     Console.WriteLine($"New user created: {registerRequest.User}");
+    //     return Results.Ok();
+    // }
+
+    // Console.WriteLine($"Failed to create user: {registerRequest.User}");
+
+    return Results.BadRequest("Invalid request");
+});
+
 
 app.MapPost("/auth/login", async (LoginRequest loginRequest, UserManager<User> userManager, SignInManager<User> signInManager) =>
 {
