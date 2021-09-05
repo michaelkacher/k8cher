@@ -38,6 +38,13 @@ spec:
             - name: proxy
               containerPort: 80
               protocol: TCP
+            {{- range $k, $v := .Values.extraContainerPorts }}
+            {{- range $kk, $vv := $v }}
+            - name: {{ $kk }}
+              containerPort: {{ $vv }} 
+              protocol: TCP
+            {{- end }}
+            {{- end }}
           {{- if .Values.dapr.enabled }}
             - name: dapr-sidecar
               containerPort: 3600

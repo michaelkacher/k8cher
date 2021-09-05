@@ -34,6 +34,8 @@ podAnnotations:
 dapr:
   enabled: true
 
+extraContainerPorts: {}
+
 podSecurityContext: {}
   # fsGroup: 2000
 

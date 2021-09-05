@@ -23,6 +23,9 @@ serviceAccount:
 dapr:
   enabled: false
 
+extraContainerPorts: 
+  - mail-server: 25
+
 podSecurityContext: {}
   # fsGroup: 2000
 

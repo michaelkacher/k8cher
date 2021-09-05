@@ -34,6 +34,8 @@ serviceAccount:
 dapr:
   enabled: false
 
+extraContainerPorts: {}
+
 podSecurityContext: {}
   # fsGroup: 2000
 
