@@ -15,7 +15,7 @@ When you execute `tilt up` this project currently creates the following in a Kub
 * Database migration with Kubernetes Job
 * Local Kubernetes secret store (intended to leverage Dapr secret component for a Key vault in production)
 
-There is a svelteKit frontend that can currently be run seperate `npm run dev`
+There is a svelteKit frontend that can currently be run separately: [Running Svelte](#running-svelte)
 
 # Goals
 This starter kit leverages [Tilt](https://tilt.dev/) to provide a productive environment for development which includes:
@@ -86,6 +86,18 @@ To cleanup the kubernetes resources do the following:
 
 # Notes
 * The proxy is currently setup to localhost:8088. If this conflicts with existing ports, navigate to the [helm chart values](./src/k8cher.proxy/values.yaml) and change the `port` under `service` from 8088 to desired port.
+
+# Running Svelte
+
+There is a svelte frontend that can be run separately to access the services.
+
+### Starting Svelte dev environment.
+
+1) Ensure that [Node](https://nodejs.org/en/) is installed (version > 12)
+2) cd into web directory: `cd src\k8cher.web`
+3) install the npm dependencies: `npm install`
+4) run the dev env: `npm run dev`
+5) access it at http://localhost:3000
 
 
 ## TODO - mbk: break out into different  mini-tutorial files
