@@ -24,15 +24,15 @@ serviceAccount:
   name: ""
 
 # Dapr annotations at: https://docs.dapr.io/reference/arguments-annotations-overview/
-#podAnnotations:
-#    dapr.io/enabled: "true"
-#    dapr.io/app-id: "k8cher-auth"
-#    dapr.io/app-port: "3600"
-#    dapr.io/log-level: "debug"
-#    dapr.io/sidecar-liveness-probe-delay-seconds: "45"
+podAnnotations:
+   dapr.io/enabled: "true"
+   dapr.io/app-id: "k8cher-auth"
+   dapr.io/app-port: "3600"
+   dapr.io/log-level: "debug"
+   dapr.io/sidecar-liveness-probe-delay-seconds: "45"
 
 dapr:
-  enabled: false
+  enabled: true
 
 extraContainerPorts: {}
 

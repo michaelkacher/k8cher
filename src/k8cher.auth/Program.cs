@@ -1,9 +1,25 @@
+using Dapr.Client;
+
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetValue<string>("pg-connection-string");
+var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
+builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
 
+var connectionString = builder.Configuration.GetValue<string>("pg-connection-string");
 builder.Services.AddDbContext<AuthContext>(options => options.UseNpgsql(connectionString));
-builder.Services.AddIdentity<User, Role>().AddEntityFrameworkStores<AuthContext>();
+builder.Services.AddIdentity<User, Role>(o =>
+        {
+            o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            o.Lockout.MaxFailedAccessAttempts = 5;
+            o.Lockout.AllowedForNewUsers = true;
+            o.SignIn.RequireConfirmedAccount = true;
+        }
+    ).AddEntityFrameworkStores<AuthContext>()
+    .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider); ;
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o =>
+       o.TokenLifespan = TimeSpan.FromHours(1));
+
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -25,23 +41,76 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "auth/swagger";
 });
 
-app.MapPost("/auth/register", async (RegisterRequest registerRequest, UserManager<User> userManager) =>
+app.MapPost("/auth/register", async (RegisterRequest registerRequest, AuthService authService) =>
 {
-    if (registerRequest.User == null) throw new ArgumentNullException(nameof(registerRequest.User));
+    var user = new User() { UserName = registerRequest.Email, Email = registerRequest.Email };
+    var result = await authService.RegisterUser(user, registerRequest.Password);
 
-    var result = await userManager.CreateAsync(registerRequest.User, registerRequest.Password);
-
-    if (result.Succeeded)
+    try
     {
-        Console.WriteLine($"New user created: {registerRequest.User}");
-        return Results.Ok();
+        if (result == ConfirmationResult.SendConfirmationLink)
+        {
+            await authService.SendConfirmAccountEmail(registerRequest.Email);
+        }
+        else if (result == ConfirmationResult.SendConfirmationLink)
+        {
+            await authService.SendConfirmAccountEmail(registerRequest.Email);
+        }
+        else
+        {
+            return Results.BadRequest(result);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error sending e-mail: {ex.Message}");
+        return Results.BadRequest("Error sending e-mail, please try again");
     }
 
-    Console.WriteLine($"Failed to create user: {registerRequest.User}");
-
-    return Results.BadRequest("Invalid request");
+    return Results.Ok();
 });
 
+
+app.MapGet("/auth/validate/{userId}/{confirmation}", async (string userId, string confirmation, UserManager<User> userManager) =>
+{
+    var token = Base64UrlEncoder.Decode(confirmation);
+    
+    try
+    {
+        var user = await userManager.FindByIdAsync(userId);
+        // if e-mail has already been confirmed, let them log in
+        if (user.EmailConfirmed)
+        {
+            // todo - mbk: pull from app url config
+            return Results.Redirect("http://localhost:3000/login");
+        };
+
+        var result = await userManager.ConfirmEmailAsync(user, token);
+        if (result.Succeeded)
+        {
+            // todo - mbk: pull from app url config
+            return Results.Redirect("http://localhost:3000/login?confirmation=true");
+        }
+        else
+        {
+            // todo - mbk: pull from app url config
+            return Results.BadRequest("http://localhost:3000/tokenexpired");
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error sending e-mail: {ex.Message}");
+        return Results.BadRequest("Error sending e-mail");
+    }
+});
+
+// TODO - mbk: Forgot password
+
+// TODO - mbk: Reset password
+// ResetPasswordAsync(TUser user, string token, string newPassword)
+
+// TODO - mbk: Change password
+// ChangePasswordAsync(TUser user, string currentPassword, string newPassword);
 
 app.MapPost("/auth/login", async (LoginRequest loginRequest, UserManager<User> userManager, SignInManager<User> signInManager) =>
 {

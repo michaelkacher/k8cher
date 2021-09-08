@@ -5,7 +5,6 @@
 	import { serverUrl } from "$lib/utils/env";
 	import { post } from "$lib/utils/apiHelper";
 
-	let username;
 	let email;
 	let password;
 
@@ -16,10 +15,7 @@
 		const res = await post(
 			`${serverUrl}auth/register`,
 			{
-				user: {
-					email: email,
-					userName: email,
-				},
+				email,
 				password,
 			}
 		);
@@ -28,11 +24,6 @@
 		if (res.message) {
 			error = res.message;
 		}
-		// todo - mbk: probably want to change to
-		// 1) enter e-mail
-		// 2) send link
-		// 3) on confirm screen set password
-		//goto('/auth/confirmEmail')
 	}
 
 </script>
@@ -59,7 +50,6 @@
 	</svelte:fragment>
 	{#if !accountCreated}
 		<RegisterUserForm
-			bind:username
 			bind:email
 			bind:password
 			on:click={createUserAccount}

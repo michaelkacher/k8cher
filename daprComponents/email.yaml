@@ -1,0 +1,25 @@
+# Leveraged https://github.com/EdwinVW/dapr-traffic-control/blob/ea9a31eb0ef0229f3d9b59d8e8efba6a2e827830/src/k8s/email.yaml
+# for example to setup
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: sendmail
+  namespace: default
+spec:
+  type: bindings.smtp
+  version: v1
+  metadata:
+  - name: host
+    value: maildev-service-chart
+  - name: port
+    value: 25
+  - name: user
+    secretKeyRef:
+      name: secret-store
+      key: smtp-user
+  - name: password
+    secretKeyRef:
+      name: secret-store
+      key: smtp-password
+  - name: skipTLSVerify
+    value: true

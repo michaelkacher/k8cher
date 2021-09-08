@@ -8,6 +8,19 @@ To fix, have to restart dapr side car injector pod then restart container pod.
 Similar issue mentioned here https://github.com/dapr/dapr/issues/1621, but closed due to workaround. Maybe there is a way in tilt to auto restart for now? Maybe similar, but when actors added, have to tilt down, tilt up. Dapr environment just not very hot reloadable friendly?
 
 * Add secrets through Dapr? Right now it is working because they are all hardcoded in appsettings.json. This would allow integrating with key vault.
+Was able to access loaded secrets from dapr with:
+```
+app.MapGet("auth/test", async(DaprClient daprClient) => {
+    var secrets = await daprClient.GetSecretAsync("kubernetes", "secret-store");
+            Console.WriteLine($"length: {secrets.Count}");
+            var key = secrets.Keys.First();
+            Console.WriteLine($"key: {key}");
+
+            var value = secrets.Values.First();
+            Console.WriteLine($"value: {value}");
+});
+```
+
 * setup authorization policy in reverse proxy
 * Hookup CI/CD (argo? tilt itself? Azure DevOps? Github Actions?) deploying to prod like environment (use Dockerfile, fix tagging, tie into vault, etc.)
 * add health checks

@@ -17,6 +17,8 @@ k8s_yaml(local(
     "--from-literal=signing-key=NO5U308H!@#SI2ZXCVSDSDNDln",
     "--from-literal=jwt-issuer=http://localhost:8088",
     "--from-literal=jwt-audience=http://localhost:8088",
+    "--from-literal=smtp-user=mike",
+    "--from-literal=smtp-password=Password_",
     "-o=yaml", "--dry-run=client"]
     ))
 
@@ -46,3 +48,4 @@ k8s_resource('dapr-sidecar-injector', labels=['dapr'])
 
 # Dapr Components
 k8s_yaml('./daprComponents/pg-store.yaml')
+k8s_yaml('./daprComponents/email.yaml')
