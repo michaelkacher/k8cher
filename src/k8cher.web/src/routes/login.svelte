@@ -10,6 +10,7 @@
 	import { post } from '$lib/utils/apiHelper'
 	import { userStore } from '$lib/auth/userStore.js'
 	import { serverUrl } from '$lib/utils/env'
+	import { page } from '$app/stores'
 
 	let email
 	let password
@@ -35,6 +36,9 @@
 			authError = true
 		}
 	}
+
+	$: showConfirm = $page && $page.query && $page.query.has('confirmation')
+	
 </script>
 
 <svelte:head>
@@ -46,13 +50,6 @@
 	<div class="p-4 w-full sm:w-[450px] mx-4 sm:m-0">
 		<div class="px-4 py-3 mt-4 sm:mx-0 flex justify-center">
 			<div class="w-3/4 dark:text-primary-100">
-				<!-- todo - mbk: add back in logo -->
-				<!-- <img
-					src="{appLogo}"
-					width="420"
-					height="90"
-					alt="Application Logo"
-				/> -->
 			</div>
 		</div>
 		<div
@@ -64,6 +61,10 @@
 		<Alert data-test="errorMsg" type="danger" show="{!!authError}">
 			Incorrect username or password.
 		</Alert>
+		<Alert show="{showConfirm}" closeable="{false}">
+			<span>Your user account has been activated.</span>
+		</Alert>
+
 		<form
 			data-test="loginForm"
 			class="mt-4 p-4 flex flex-col bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-md rounded"

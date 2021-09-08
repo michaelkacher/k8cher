@@ -14,7 +14,10 @@ builder.Services.AddIdentity<User, Role>(o =>
             o.Lockout.AllowedForNewUsers = true;
             o.SignIn.RequireConfirmedAccount = true;
         }
-    ).AddEntityFrameworkStores<AuthContext>();
+    ).AddEntityFrameworkStores<AuthContext>()
+    .AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider); ;
+builder.Services.Configure<DataProtectionTokenProviderOptions>(o =>
+       o.TokenLifespan = TimeSpan.FromHours(1));
 
 builder.Services.AddScoped<AuthService>();
 
@@ -47,11 +50,11 @@ app.MapPost("/auth/register", async (RegisterRequest registerRequest, AuthServic
     {
         if (result == ConfirmationResult.SendConfirmationLink)
         {
-            await authService.SendConfirmAccountEmail(user);
+            await authService.SendConfirmAccountEmail(registerRequest.Email);
         }
         else if (result == ConfirmationResult.SendConfirmationLink)
         {
-            await authService.SendConfirmAccountEmail(user);
+            await authService.SendConfirmAccountEmail(registerRequest.Email);
         }
         else
         {
@@ -68,19 +71,30 @@ app.MapPost("/auth/register", async (RegisterRequest registerRequest, AuthServic
 });
 
 
-app.MapPost("/auth/ConfirmAccount", async (ConfirmAccountRequest confirmAccountRequest, UserManager<User> userManager) =>
+app.MapGet("/auth/validate/{userId}/{confirmation}", async (string userId, string confirmation, UserManager<User> userManager) =>
 {
+    var token = Base64UrlEncoder.Decode(confirmation);
+    
     try
     {
-        var user = await userManager.FindByIdAsync(confirmAccountRequest.UserId);
-        var result = await userManager.ConfirmEmailAsync(user, confirmAccountRequest.Token);
+        var user = await userManager.FindByIdAsync(userId);
+        // if e-mail has already been confirmed, let them log in
+        if (user.EmailConfirmed)
+        {
+            // todo - mbk: pull from app url config
+            return Results.Redirect("http://localhost:3000/login");
+        };
+
+        var result = await userManager.ConfirmEmailAsync(user, token);
         if (result.Succeeded)
         {
-            return Results.Ok();
+            // todo - mbk: pull from app url config
+            return Results.Redirect("http://localhost:3000/login?confirmation=true");
         }
         else
         {
-            return Results.BadRequest("TokenExpired");
+            // todo - mbk: pull from app url config
+            return Results.BadRequest("http://localhost:3000/tokenexpired");
         }
     }
     catch (Exception ex)

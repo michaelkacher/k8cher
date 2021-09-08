@@ -59,7 +59,7 @@ namespace k8cher.auth
         }
 
 
-        private async Task SendAccountExistsEmail(User user)
+        private async Task SendAccountExistsEmail(string email)
         {
             // todo - mbk: implement
             //send e-mail that tells users an account creation was submitted,
@@ -67,15 +67,19 @@ namespace k8cher.auth
             throw new NotImplementedException();
         }
 
-        public async Task SendConfirmAccountEmail(User user)
+        public async Task SendConfirmAccountEmail(string email)
         {
+            var user = await _userManager.FindByEmailAsync(email);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            Console.WriteLine("After token create");
+            // todo - mbk: remove hardcoded url with global config
+            var url = $"http://localhost:8088/auth/validate/{user.Id}/{Base64UrlEncoder.Encode(token)}";
 
-            var url = $"http://localhost:3000/auth/validate/{user.Id}/{token}";
+
             var body = $@"Click here to <a href=""{url}"">complete account registration!</a>";
             var subject = $"Confirm your k8cher account";
 
-            await SendEmail(user.Email, body, subject);
+            await SendEmail(email, body, subject);
         }
 
         private async Task SendEmail(string email, string body, string subject)
