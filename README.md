@@ -53,16 +53,15 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
     * Paste in the JSON below
         ```
         {
-        "user": {
-            "userName": "michael.kacher@gmail.com",
             "email": "michael.kacher@gmail.com"
-        },
-        "password": "Passw0rd_"
+            "password": "Passw0rd_"
         }
         ```
-
     * Click execute, you should see a 200 response
-    * A JWT for the user can be retrieved with a POST to /auth/login with the following JSON. (This only works because E-mail/Text confirmation has been disabled. This would not work for production where this will fail until confirmation)
+    * This creates the user but they cannot log in until the e-mail has been confirmed. Navigate to the local mail dev server at http://localhost:1080/
+    ![maildev webpage](/docs/images/maildev.png "maildev webpage")
+    * Click the confirmation link. If the web app is not running the redirect will not work but the account has still been confirmed.
+    * Now a JWT for the user can be retrieved with a POST to /auth/login with the following JSON. 
         ```
         {
         "email": "michael.kacher@gmail.com",
