@@ -53,7 +53,7 @@ Get started fast! The tools are preconfigured and kubectl, helm, and other tools
     * Paste in the JSON below
         ```
         {
-            "email": "michael.kacher@gmail.com"
+            "email": "michael.kacher@gmail.com",
             "password": "Passw0rd_"
         }
         ```
