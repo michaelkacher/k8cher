@@ -1,89 +1,61 @@
-// or use basis of writable??
-// export const writable = (initial_value = 0) => {
-
-//     let value = initial_value         // content of the store
-//     let subs = []                     // subscriber's handlers
-  
-//     const subscribe = (handler) => {
-//       subs = [...subs, handler]                                 // add handler to the array of subscribers
-//       handler(value)                                            // call handler with current value
-//       return () => subs = subs.filter(sub => sub !== handler)   // return unsubscribe function
-//     }
-  
-//     const set = (new_value) => {
-//       if (value === new_value) return         // same value, exit
-//       value = new_value                       // update value
-//       subs.forEach(sub => sub(value))         // update subscribers
-//     }
-  
-//     const update = (update_fn) => set(update_fn(value))   // update function
-  
-//     return { subscribe, set, update }       // store contract
-//   }
-
-
-
 import { writable } from 'svelte/store'
-import { get, post } from '$lib/utils/apiHelper'
 import { serverUrl } from '$lib/utils/env'
+import { post, get } from '$lib/utils/apiHelper'
 
-// const initialState = {
-//     actorState: undefined,
-//     actions: [],
-//     isLoading: false,
-//     error: ""
-// }
+// potentials advances
+// save to local storage and sync from there
+// have flag, persist history, tracks all immutable changes, if function has name, track that
+// add async option (does not wait for confirmation from server)
+
+// tutorial to write:
+// create and start new svelte app `npm init k8cher my-app`, cd my-app, npm install, npm run dev
+// startup backend `tilt up` create one optimized for working on front end
+// create a normal svelte store, can switch to persistable to save to backend
 
 export function persistable(storeName, initialState) {
-    const { subscribe, set, update } = writable(initialState);
+    let isLoading = false
+    let value = initialState
+
+    const { subscribe, set } = writable(initialState, async (setFunc) => {
+        // this is executed on first subscriber
+        const res = await get(`${serverUrl}store/${storeName}/get`)
+        if (res.success) {
+            console.log('success get store')
+            if (Object.keys(res.json).length === 0) {
+                // if resonpse is empty object '{}', initialize the store on the server
+                setFunc(initialState)
+            }
+            else {
+                value = res.json
+                setFunc(value)
+            }
+        }
+
+        return () => console.log(`no more subscribers for store ${storeName}`)
+    })
+
+    async function persist(json) {
+        isLoading = true
+        const res = await post(`${serverUrl}store/${storeName}/set`, json)
+
+        if (res.success) {
+            value = json
+            set(value)
+        } else {
+            // todo - mbk: how best to handle?
+            console.log('update failed: ' + JSON.stringify(res))
+        }
+
+        isLoading = false
+    }
 
     return {
         subscribe,
-        initializeFromApi: async () => {
-            update(state => (state = { ...state, isLoading: true }))
-            try {
-                const res = await get(`${serverUrl}store/get?storeName=${storeName}`)
-                update(state => (state = { ...state, actorState: res.json }))
-                // set(JSON.parse(res.json))
-            } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
-            } finally {
-                update(state => (state = { ...state, isLoading: false }))
-            }
+        update: async (updateFunc) => {
+            console.log('function name: ' + updateFunc.name)
+
+            persist(updateFunc(value))
         },
-        // a property to update and the json value to be updated
-        set: async (json) => {
-            update(state => (state = { ...state, isLoading: true }))
-            try {
-                // todo - mbk: instead of awaiting these, can I add them to a queue of
-                // items to be asynchronously processed? Is then using another store like redux better then?
-                const res = await post(`${serverUrl}store/set`, {
-                    name: storeName,
-                    json
-                })
-                // update(state => (state = { ...state, actorState: json }))
-                //set(json)
-            } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
-            } finally {
-                update(state => (state = { ...state, isLoading: false }))
-            }
-        },
-        updateProperty: async (propertyName, json) => {
-            update(state => (state = { ...state, isLoading: true }))
-            try {
-                // todo - mbk: instead of awaiting these, can I add them to a queue of
-                // items to be asynchronously processed? Is then using another store like redux better then?
-                const res = await post(`${serverUrl}store/update`, {
-                    
-                })
-                update(state => (state = { ...state, actorState: json }))
-            } catch (e) {
-                alert(e.message); // todo - mbk: make part of apiHelper and remove alert
-            } finally {
-                update(state => (state = { ...state, isLoading: false }))
-            }
-        }
-    };
+    }
 }
 

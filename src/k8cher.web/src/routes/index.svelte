@@ -1,14 +1,8 @@
 <script>
 	import { userStore } from '$lib/auth/userStore'
-	import { actorStore } from '$lib/actorStore'
 	import Button from '$lib/Button.svelte'
 
-	async function setStore() {
-		await actorStore.set({
-			test: 'rawr',
-			hello: 'world!'
-		})
-	}
+
 </script>
 
 <svelte:head>
@@ -46,8 +40,6 @@
 						{#each $userStore.roles as role}
 							<h1>{role}</h1>
 						{/each}
-
-						<Button on:click="{setStore}">test set store</Button>
 					</div>
 				{:else}
 					<div

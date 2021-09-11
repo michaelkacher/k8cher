@@ -1,6 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
 
-
 var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
 
 builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
@@ -41,13 +40,10 @@ builder.Services.AddAuthorization();
 //var secretValue = secretValues["super-secret"];
 
 
-
-
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapActorsHandlers();
-
 
 app.MapGet("store/hello", async (ClaimsPrincipal user) => {
     var userId = user.FindFirst("id");
@@ -55,21 +51,41 @@ app.MapGet("store/hello", async (ClaimsPrincipal user) => {
     return Results.Ok("Hello World");
 }).RequireAuthorization();
 
-
-app.MapPost("/store/set", async (SetStoreRequest setStoreRequest, ClaimsPrincipal user) =>
+app.MapGet("/store/{storeName}/get", async (string storeName, ClaimsPrincipal user) =>
 {
     var userId = user.FindFirst("id");
-    var actorId = new ActorId(setStoreRequest.Name + "-" + userId);
+    var actorId = new ActorId(storeName + "-" + userId);
+    var proxy = ActorProxy.Create<ISvelteStoreActor>(actorId, nameof(SvelteStoreActor));
+    try
+    {
+        var result = await proxy.GetState();
+
+
+        var json = JsonDocument.Parse(result);
+
+
+        return Results.Ok(json);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error post setstore: {ex.Message}");
+    }
+
+    return Results.BadRequest();
+}).RequireAuthorization();
+
+app.MapPost("/store/{storeName}/set", async (string storeName, JsonDocument jsonDocument, ClaimsPrincipal user) =>
+{
+    var userId = user.FindFirst("id");
+    var actorId = new ActorId(storeName + "-" + userId);
     var proxy = ActorProxy.Create<ISvelteStoreActor>(actorId, nameof(SvelteStoreActor));
     try
     {
         using var stream = new MemoryStream();
-        Utf8JsonWriter writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
-        setStoreRequest.Json.WriteTo(writer);
+        Utf8JsonWriter writer = new Utf8JsonWriter(stream, new JsonWriterOptions { });
+        jsonDocument.WriteTo(writer);
         writer.Flush();
         var json = Encoding.UTF8.GetString(stream.ToArray());
-        Console.WriteLine($"JSON value: {json}");
-
 
         var success = await proxy.SetState(json);
 
@@ -80,29 +96,16 @@ app.MapPost("/store/set", async (SetStoreRequest setStoreRequest, ClaimsPrincipa
     }
 
     return Results.Ok();
-
-
-});
-
-
-app.MapPost("/store/update", async (UpdateStorePropertyRequest updateStorePropertyRequest, ClaimsPrincipal user) =>
-{
-    var userId = user.FindFirst("id");
-    var actorId = new ActorId(updateStorePropertyRequest.Name + "-" + userId);
-    var proxy = ActorProxy.Create<ISvelteStoreActor>(actorId, nameof(SvelteStoreActor));
-    var success = await proxy.UpdateProperty(updateStorePropertyRequest.PropertyName, updateStorePropertyRequest.Json);
-
-    return Results.Ok(success);
-});
+}).RequireAuthorization();
 
 app.MapGet("store/get", async (string storeName, ClaimsPrincipal user) =>
 {
     var userId = user.FindFirst("id");
     var actorId = new ActorId(storeName + "-" + userId);
     var proxy = ActorProxy.Create<ISvelteStoreActor>(actorId, nameof(SvelteStoreActor));
-    var success = await proxy.GetState();
+    var jsonDocument = await proxy.GetState();
 
-    return Results.Ok(success);
-});
+    return Results.Ok(jsonDocument);
+}).RequireAuthorization();
 
 app.Run();

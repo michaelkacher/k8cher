@@ -90,7 +90,7 @@ To cleanup the kubernetes resources do the following:
 
 There is a svelte frontend that can be run separately to access the services.
 
-### Starting Svelte dev environment.
+### Starting Svelte dev environment
 
 1) Ensure that [Node](https://nodejs.org/en/) is installed (version > 12)
 2) cd into web directory: `cd src\k8cher.web`
