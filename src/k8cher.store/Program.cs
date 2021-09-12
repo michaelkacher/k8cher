@@ -1,8 +1,21 @@
+using Dapr.Client;
+using Dapr.Extensions.Configuration;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
 
-builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
+var daprClient = new DaprClientBuilder().UseHttpEndpoint($"http://localhost:{daprHttpPort}").Build();
+builder.Services.AddSingleton<DaprClient>(daprClient);
+        
+//builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
+
+var secretDescriptors = new List<DaprSecretDescriptor>
+                            {
+                                new DaprSecretDescriptor("secret-store")
+                            };
+builder.Configuration.AddDaprSecretStore("kubernetes", secretDescriptors, daprClient);
+
 
 builder.Services.AddActors(options =>
 {
@@ -16,6 +29,7 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
+    // The secrets are registered into configuration by Dapr using the kubernetes store
     options.TokenValidationParameters = new TokenValidationParameters
     {
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("signing-key"))),
@@ -29,27 +43,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
-
-// todo - mbk: if having trouble getting secrets can try writing somethting that tries from dapr secret store and falls back on config
-//var secretValues = await client.GetSecretAsync(
-//                    "kubernetes", // Name of the Dapr Secret Store
-//                    "super-secret", // Name of the k8s secret
-//                    new Dictionary<string, string>() { { "namespace", "default" } }); // Namespace where the k8s secret is deployed
-
-//// Get the secret value
-//var secretValue = secretValues["super-secret"];
-
-
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapActorsHandlers();
-
-app.MapGet("store/hello", async (ClaimsPrincipal user) => {
-    var userId = user.FindFirst("id");
-    Console.WriteLine($"User has id of {userId}");
-    return Results.Ok("Hello World");
-}).RequireAuthorization();
 
 app.MapGet("/store/{storeName}/get", async (string storeName, ClaimsPrincipal user) =>
 {
@@ -59,10 +56,7 @@ app.MapGet("/store/{storeName}/get", async (string storeName, ClaimsPrincipal us
     try
     {
         var result = await proxy.GetState();
-
-
         var json = JsonDocument.Parse(result);
-
 
         return Results.Ok(json);
     }
@@ -88,7 +82,6 @@ app.MapPost("/store/{storeName}/set", async (string storeName, JsonDocument json
         var json = Encoding.UTF8.GetString(stream.ToArray());
 
         var success = await proxy.SetState(json);
-
     }
     catch (Exception ex)
     {
@@ -96,16 +89,6 @@ app.MapPost("/store/{storeName}/set", async (string storeName, JsonDocument json
     }
 
     return Results.Ok();
-}).RequireAuthorization();
-
-app.MapGet("store/get", async (string storeName, ClaimsPrincipal user) =>
-{
-    var userId = user.FindFirst("id");
-    var actorId = new ActorId(storeName + "-" + userId);
-    var proxy = ActorProxy.Create<ISvelteStoreActor>(actorId, nameof(SvelteStoreActor));
-    var jsonDocument = await proxy.GetState();
-
-    return Results.Ok(jsonDocument);
 }).RequireAuthorization();
 
 app.Run();
