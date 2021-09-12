@@ -33,10 +33,23 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "K8cher Store", Description = "OpenAPI specification for StoreService", Version = "v1" });
+});
+
 var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapActorsHandlers();
+
+app.UseSwagger(c => c.RouteTemplate = "store/swagger/{documentName}/swagger.json");
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/store/swagger/v1/swagger.json", "K8cher Store v1");
+    c.RoutePrefix = "store/swagger";
+});
 
 app.MapGet("/store/{storeName}/get", async (string storeName, ClaimsPrincipal user) =>
 {

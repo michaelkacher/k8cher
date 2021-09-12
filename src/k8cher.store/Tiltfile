@@ -42,8 +42,7 @@ yaml = helm(
 k8s_yaml(yaml)
 k8s_resource(
     'k8cher-store-service-chart', 
-    # todo - mbk: add this back after swagger is added
-    #links=['http://localhost:8088/store/swagger'],
+    links=['http://localhost:8088/store/swagger'],
     labels=['store'],
     resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
     )
