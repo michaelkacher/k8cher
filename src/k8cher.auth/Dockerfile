@@ -1,10 +1,9 @@
 # This dockerfile will be used for building deployment docker image artifacts
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0.0-preview.7 AS base
 WORKDIR /app
 EXPOSE 80
-EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
 COPY ["k8cher.auth.csproj", "./"]
 RUN dotnet restore "./k8cher.auth.csproj"

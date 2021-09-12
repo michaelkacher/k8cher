@@ -1,28 +1,30 @@
 # This tiltfile sets up Microsoft Reverse Proxy: https://github.com/microsoft/reverse-proxy
 
+docker_build('k8cher-proxy', './')
+
 # For more on Extensions, see: https://docs.tilt.dev/extensions.html
-load('ext://restart_process', 'docker_build_with_restart')
+#load('ext://restart_process', 'docker_build_with_restart')
 
 # watch source code and on change, rebuild artifacts (dlls, etc.) and place in builds folder
-local_resource(
-    'proxy-build',
-    'dotnet publish k8cher.proxy.csproj -c Release -o ../../builds/k8cher-proxy-build',
-    deps=['./'],
-    ignore=['k8cher.proxy.sln', 'k8cher.proxy.csproj.user', 'obj', 'bin', '.vs'],
-    trigger_mode=TRIGGER_MODE_AUTO,
-    labels=['proxy'],
-)
+#local_resource(
+#    'proxy-build',
+#    'dotnet publish k8cher.proxy.csproj -c Release -o ../../builds/k8cher-proxy-build',
+#    deps=['./'],
+#    ignore=['k8cher.proxy.sln', 'k8cher.proxy.csproj.user', 'obj', 'bin', '.vs'],
+#    trigger_mode=TRIGGER_MODE_AUTO,
+#    labels=['proxy'],
+#)
 
 # keeps a docker image named 'k8cher-proxy' updated
-docker_build_with_restart(
-    'k8cher-proxy',
-    '../../builds/k8cher-proxy-build',
-    entrypoint=['dotnet', 'k8cher.proxy.dll'],
-    dockerfile='DevelopmentDockerfile',
-    live_update=[
-        sync('../../builds/k8cher-proxy-build', '/app/out'),
-    ],
-)
+#docker_build_with_restart(
+#    'k8cher-proxy',
+#    '../../builds/k8cher-proxy-build',
+#    entrypoint=['dotnet', 'k8cher.proxy.dll'],
+#    dockerfile='DevelopmentDockerfile',
+#    live_update=[
+#        sync('../../builds/k8cher-proxy-build', '/app/out'),
+#    ],
+#)
 
 # deploys to kubernetes using the 'generic' service-chart
 yaml = helm(

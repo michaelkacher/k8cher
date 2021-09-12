@@ -5,7 +5,7 @@ docker_build('k8cher-store', './')
 # if .net sdk of proper version is on local machine can speed up buildtime by switching out the docker build
 # for building on host machine and replacing the line above with the commented out code
 # For more on Extensions, see: https://docs.tilt.dev/extensions.html
-load('ext://restart_process', 'docker_build_with_restart')
+#load('ext://restart_process', 'docker_build_with_restart')
 
 # watch source code and on change, rebuild artifacts (dlls, etc.) and place in builds folder
 #local_resource(
