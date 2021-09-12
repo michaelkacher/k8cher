@@ -1,4 +1,5 @@
-# todo - mbk: preview 7 now has the ability to create 'bundles' for migrations
+# TODO - This does not work for a production build currently because it cannot pull secrets from the DAPR secret store
+# Preview 7 now has the ability to create 'bundles' for migrations
 # Consider changing this to create the bundle, then the Kubernets job runs the migration executable
 # https://devblogs.microsoft.com/dotnet/introducing-devops-friendly-ef-core-migration-bundles/
 # A Dockerfile to create an image that can easily run entity framework migrations for local development

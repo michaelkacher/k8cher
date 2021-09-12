@@ -1,16 +1,16 @@
-using Dapr.Client;
-
 namespace k8cher.auth
 {
     public class AuthService
     {
         private readonly DaprClient _daprClient;
         private readonly UserManager<User> _userManager;
+        private readonly IConfiguration _configuration;
 
-        public AuthService(DaprClient daprClient, UserManager<User> userManager)
+        public AuthService(DaprClient daprClient, UserManager<User> userManager, IConfiguration configuration)
         {
             _daprClient = daprClient;
             _userManager = userManager;
+            _configuration = configuration;
         }
 
         public async Task<ConfirmationResult> RegisterUser(User user, string password)
@@ -72,8 +72,7 @@ namespace k8cher.auth
             var user = await _userManager.FindByEmailAsync(email);
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             Console.WriteLine("After token create");
-            // todo - mbk: remove hardcoded url with global config
-            var url = $"http://localhost:8088/auth/validate/{user.Id}/{Base64UrlEncoder.Encode(token)}";
+            var url = $"{_configuration.GetValue<string>("ingress")}auth/validate/{user.Id}/{Base64UrlEncoder.Encode(token)}";
 
 
             var body = $@"Click here to <a href=""{url}"">complete account registration!</a>";
@@ -87,7 +86,7 @@ namespace k8cher.auth
 
             var metadata = new Dictionary<string, string>
             {
-                ["emailFrom"] = "donotreply@domain.com", // todo - mbk: pull from global configuration
+                ["emailFrom"] = _configuration.GetValue<string>("mail-server-email-from"),
                 ["emailTo"] = email,
                 ["subject"] = subject
             };

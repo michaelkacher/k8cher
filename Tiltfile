@@ -17,10 +17,14 @@ k8s_yaml(local(
     "--from-literal=signing-key=NO5U308H!@#SI2ZXCVSDSDNDln",
     "--from-literal=jwt-issuer=http://localhost:8088",
     "--from-literal=jwt-audience=http://localhost:8088",
+    "--from-literal=ingress=http://localhost:8088/",
     "--from-literal=smtp-user=mike",
     "--from-literal=smtp-password=Password_",
+    "--from-literal=mail-server-email-from=donotreply@domain.com",
+    "--from-literal=web-login-redirect=http://localhost:3000/login",
+    "--from-literal=web-confirmation-expired=http://localhost:3000/tokenexpired",
     "-o=yaml", "--dry-run=client"]
-    ))
+    )) 
 
 # Proxy for incoming traffic
 include('./src/k8cher.proxy/Tiltfile')

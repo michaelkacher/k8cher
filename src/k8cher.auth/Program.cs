@@ -1,9 +1,11 @@
-using Dapr.Client;
-
 var builder = WebApplication.CreateBuilder(args);
 
-var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
-builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
+var daprClient = new DaprClientBuilder().UseHttpEndpoint($"http://localhost:3600").Build();
+builder.Services.AddSingleton<DaprClient>(daprClient);
+
+builder.Configuration.AddDaprSecretStore("kubernetes",
+        new List<DaprSecretDescriptor> { new DaprSecretDescriptor("secret-store") }, 
+        daprClient);
 
 var connectionString = builder.Configuration.GetValue<string>("pg-connection-string");
 builder.Services.AddDbContext<AuthContext>(options => options.UseNpgsql(connectionString));
@@ -81,20 +83,17 @@ app.MapGet("/auth/validate/{userId}/{confirmation}", async (string userId, strin
         // if e-mail has already been confirmed, let them log in
         if (user.EmailConfirmed)
         {
-            // todo - mbk: pull from app url config
-            return Results.Redirect("http://localhost:3000/login");
+            return Results.Redirect(builder.Configuration.GetValue<string>("web-login-redirect"));
         };
 
         var result = await userManager.ConfirmEmailAsync(user, token);
         if (result.Succeeded)
         {
-            // todo - mbk: pull from app url config
-            return Results.Redirect("http://localhost:3000/login?confirmation=true");
+            return Results.Redirect($"{builder.Configuration.GetValue<string>("web-login-redirect")}?confirmation=true");
         }
         else
         {
-            // todo - mbk: pull from app url config
-            return Results.BadRequest("http://localhost:3000/tokenexpired");
+            return Results.BadRequest(builder.Configuration.GetValue<string>("web-confirmation-expired"));
         }
     }
     catch (Exception ex)

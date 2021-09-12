@@ -28,7 +28,7 @@ podAnnotations:
    dapr.io/enabled: "true"
    dapr.io/app-id: "k8cher-store"
    dapr.io/app-port: "3600"
-   dapr.io/log-level: "debug" # todo - mbk: add a prod.values that does not have this set
+   dapr.io/log-level: "debug"
    dapr.io/sidecar-liveness-probe-delay-seconds: "45"
 
 dapr:

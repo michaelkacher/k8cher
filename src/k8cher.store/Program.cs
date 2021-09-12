@@ -1,21 +1,11 @@
-using Dapr.Client;
-using Dapr.Extensions.Configuration;
-
 var builder = WebApplication.CreateBuilder(args);
 
-var daprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT") ?? "3600";
-
-var daprClient = new DaprClientBuilder().UseHttpEndpoint($"http://localhost:{daprHttpPort}").Build();
+var daprClient = new DaprClientBuilder().UseHttpEndpoint($"http://localhost:3600").Build();
 builder.Services.AddSingleton<DaprClient>(daprClient);
-        
-//builder.Services.AddDaprClient(builder => builder.UseHttpEndpoint($"http://localhost:{daprHttpPort}"));
 
-var secretDescriptors = new List<DaprSecretDescriptor>
-                            {
-                                new DaprSecretDescriptor("secret-store")
-                            };
-builder.Configuration.AddDaprSecretStore("kubernetes", secretDescriptors, daprClient);
-
+builder.Configuration.AddDaprSecretStore("kubernetes",
+        new List<DaprSecretDescriptor> { new DaprSecretDescriptor("secret-store") },
+        daprClient);
 
 builder.Services.AddActors(options =>
 {
