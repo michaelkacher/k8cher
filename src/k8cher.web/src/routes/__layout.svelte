@@ -13,9 +13,6 @@
 	// todo - mbk: don't like this solution, would prefer a __layout.reset.svelte
 	$: isLoginRouteActivated = $page && $page.path && $page.path === '/login'
 
-	onMount(async () => {
-		await userStore.initialize()
-	});
 </script>
 
 <!-- {#await userStore.initialize() then response} -->
