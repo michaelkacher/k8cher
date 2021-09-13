@@ -6,6 +6,8 @@ import { post, get } from '$lib/utils/apiHelper'
 // save to local storage and sync from there
 // have flag, persist history, tracks all immutable changes, if function has name, track that
 // add async option (does not wait for confirmation from server)
+// ability to add jsonschema
+
 
 // tutorial to write:
 // create and start new svelte app `npm init k8cher my-app`, cd my-app, npm install, npm run dev
@@ -15,6 +17,10 @@ import { post, get } from '$lib/utils/apiHelper'
 export function persistable(storeName, initialState) {
     let isLoading = false
     let value = initialState
+
+    const devTools =
+      window.__REDUX_DEVTOOLS_EXTENSION__ &&
+      window.__REDUX_DEVTOOLS_EXTENSION__.connect();
 
     const { subscribe, set } = writable(initialState, async (setFunc) => {
         // this is executed on first subscriber
@@ -51,8 +57,10 @@ export function persistable(storeName, initialState) {
 
     return {
         subscribe,
-        update: async (updateFunc) => {
-            console.log('function name: ' + updateFunc.name)
+        update: async (updateFunc, actionName) => {
+            if (devTools && actionName) {
+                devTools.send(actionName, value)
+            }
 
             persist(updateFunc(value))
         },
