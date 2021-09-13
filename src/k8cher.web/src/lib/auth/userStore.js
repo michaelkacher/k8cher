@@ -1,6 +1,5 @@
 import { writable } from 'svelte/store'
 import { browser } from '$app/env'
-import { goto } from '$app/navigation'
 
 // todo - mbk: move into a util
 function parseJwt(token) {
@@ -27,7 +26,7 @@ const initialState = {
 export const userStore = createUserStore();
 
 function createUserStore() {
-    const { subscribe, set, update } = writable(initialState, async (setFunc) => {
+    const { subscribe, set, update } = writable(initialState, (setFunc) => {
         update(state => (state = { ...state, isLoading: true }));
         try {
             if (browser) {
@@ -46,7 +45,6 @@ function createUserStore() {
                     }
                     update(state => (state = { ...state, jwt: jwt }));
                     // todo - mbk: previously only returned e-mail user with e-mail, determine next steps 
-                    // const res = await get(`${serverUrl}auth/me`)
                     const json = { email: 'test@test.com' }
                     update(state => (state = { ...state, user: json }));
                     update(state => (state = { ...state, successfulLoad: true }));

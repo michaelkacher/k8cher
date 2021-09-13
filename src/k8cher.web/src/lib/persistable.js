@@ -19,23 +19,23 @@ export function persistable(storeName, initialState) {
     let value = initialState
 
     const devTools =
-      window.__REDUX_DEVTOOLS_EXTENSION__ &&
-      window.__REDUX_DEVTOOLS_EXTENSION__.connect();
+        window.__REDUX_DEVTOOLS_EXTENSION__ &&
+        window.__REDUX_DEVTOOLS_EXTENSION__.connect();
 
-    const { subscribe, set } = writable(initialState, async (setFunc) => {
-        // this is executed on first subscriber
-        const res = await get(`${serverUrl}store/${storeName}/get`)
-        if (res.success) {
-            console.log('success get store')
-            if (Object.keys(res.json).length === 0) {
-                // if resonpse is empty object '{}', initialize the store on the server
-                setFunc(initialState)
+    const { subscribe, set } = writable(initialState, (setFunc) => {
+        get(`${serverUrl}store/${storeName}/get`).then(res => {
+            if (res.success) {
+                console.log('success get store')
+                if (Object.keys(res.json).length === 0) {
+                    // if resonpse is empty object '{}', initialize the store on the server
+                    setFunc(initialState)
+                }
+                else {
+                    value = res.json
+                    setFunc(value)
+                }
             }
-            else {
-                value = res.json
-                setFunc(value)
-            }
-        }
+        })
 
         return () => console.log(`no more subscribers for store ${storeName}`)
     })
