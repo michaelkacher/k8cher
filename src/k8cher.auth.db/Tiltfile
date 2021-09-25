@@ -8,13 +8,14 @@ set='postgresqlDatabase=k8cher,postgresqlUsername=postgres,postgresqlPassword=po
 # port forward for local development access
 k8s_resource('k8cher-db-postgresql', port_forwards='5432:5432', labels=['database'])
 
-k8s_yaml('./kubernetes/k8cher-db-migrate.yaml')
-k8s_resource(
-    'k8cher-db-migrate', 
-    trigger_mode=TRIGGER_MODE_MANUAL, 
-    labels=['database'],
-    resource_deps=['k8cher-db-postgresql']
-    )
+# disabling until pgsql rc.1 released
+# k8s_yaml('./kubernetes/k8cher-db-migrate.yaml')
+# k8s_resource(
+#     'k8cher-db-migrate', 
+#     trigger_mode=TRIGGER_MODE_MANUAL, 
+#     labels=['database'],
+#     resource_deps=['k8cher-db-postgresql']
+#     )
 
 k8s_yaml('./kubernetes/pg-admin.yaml')
 k8s_resource(

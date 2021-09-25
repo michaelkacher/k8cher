@@ -1,4 +1,6 @@
-﻿public class RegisterRequest
+﻿using System;
+
+public class RegisterRequest
 {
     public string Email { get; set; } = String.Empty;
     public string Password { get; set; } = String.Empty;

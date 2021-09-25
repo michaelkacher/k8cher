@@ -46,4 +46,5 @@ k8s_resource(
     resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
     )
 
-docker_build('k8cher-db-migrate', '../k8cher.auth', dockerfile='./MigrationDockerfile')
+# disabling until pgsql rc.1 released
+#docker_build('k8cher-db-migrate', '../k8cher.auth', dockerfile='./MigrationDockerfile')

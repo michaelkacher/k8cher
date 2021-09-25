@@ -1,3 +1,10 @@
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.Collections.Generic;
+using System.IO;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var daprClient = new DaprClientBuilder().UseHttpEndpoint($"http://localhost:3600").Build();
