@@ -1,3 +1,10 @@
+Brainstorm for svelte
+* Have env for persist to server?
+* implement store that stores persist to local-storage
+* implement server sync of store
+* prebuild generic items for list, etc. that leverage store?
+
+
 * slim down cors (have it wide open now)
 * add sveltekit to tilt up
 * With minimal APIs can I flip it where it always requires authorization unless removed? Right now add .RequireAuthorization() at the end.

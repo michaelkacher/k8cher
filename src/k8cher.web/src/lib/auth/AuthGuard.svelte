@@ -9,6 +9,7 @@
 		'/account/register',
 		'/account/activate',
 		'/account/reset/init',
+		'/orders',
 	]
 
 	$: routeAccessAllowed =
