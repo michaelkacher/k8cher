@@ -28,6 +28,27 @@
 			maxlength: 50,
 			message: 'Password cannot be longer than 50 characters',
 		},
+		// Can remove any of these that the backend doesn't require.
+		{
+			type: 'pattern',
+			pattern: /[a-z]/,
+			message: 'Password must contain a lower-case letter',
+		},
+		{
+			type: 'pattern',
+			pattern: /[A-Z]/,
+			message: 'Password must contain a capital letter',
+		},
+		{
+			type: 'pattern',
+			pattern: /[0-9]/,
+			message: 'Password must contain a number',
+		},
+		{
+			type: 'pattern',
+			pattern: /[!@#$%^&*\(\)_\+\-\={}<>,\.\|""'~`:;\\?\/\[\] ]/,
+			message: 'Password must contain a special character',
+		},
 	]}"
 	on:validate
 	let:message
