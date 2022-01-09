@@ -1,5 +1,5 @@
 # This dockerfile will be used for building deployment docker image artifacts
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 EXPOSE 80
 
