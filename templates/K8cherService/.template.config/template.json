@@ -1,0 +1,14 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "@kachermichael",
+    "classifications": ["service"],
+    "identity": "K8cherService",
+    "name": "Service for K8cher project",
+    "shortName": "K8cherService",
+    "preferNameDirectory": true,
+    "sourceName": "K8cherService",
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    }
+}

@@ -1,0 +1,39 @@
+load('ext://restart_process', 'docker_build_with_restart')
+
+# watch source code and on change, rebuild artifacts (dlls, etc.) and place in builds folder
+local_resource(
+    'KacherService-build',
+    'dotnet publish K8cherService.csproj -c Release -o ../../builds/K8cherService-build',
+    deps=['./'],
+    ignore=['K8cherService.sln', 'K8cherService.csproj.user', 'obj', 'bin', '.vs'],
+    trigger_mode=TRIGGER_MODE_AUTO,
+    labels=['K8cherService'],
+)
+
+# keeps a docker image named 'K8cherService' updated
+docker_build_with_restart(
+    'K8cherService',
+    '../../builds/K8cherService-build',
+    entrypoint=['dotnet', 'K8cherService.dll'],
+    dockerfile='DevelopmentDockerfile',
+    live_update=[
+        sync('../../builds/K8cherService-build', '/app/out'),
+    ],
+)
+
+# deploys to kubernetes using the 'generic' service-chart
+yaml = helm(
+  '../../charts/service-chart',
+  # The release name, equivalent to helm --name
+  name='K8cherService',
+  # The namespace to install in, equivalent to helm --namespace
+  namespace='default',
+  # The values file to substitute into the chart.
+  values=['./values.yaml']
+  )
+k8s_yaml(yaml)
+k8s_resource(
+    'K8cherService-service-chart', 
+    labels=['K8cherService'],
+    resource_deps=['dapr-sidecar-injector', 'k8cher-db-postgresql']
+    )
